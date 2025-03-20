@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Trang Chủ";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Chào Mừng</h1>
+    <p class="lead">Hệ thống quản lý công việc hiệu quả và dễ sử dụng</p>
+
+    @if (!User.Identity?.IsAuthenticated == true)
+    {
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Login" class="btn btn-primary btn-lg">
+                <i class="fas fa-sign-in-alt me-2"></i>Đăng Nhập Ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Tasks" class="btn btn-primary btn-lg">
+                <i class="fas fa-tasks me-2"></i>Xem Công Việc
+            </a>
+        </div>
+    }
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Dễ Sử Dụng</h5>
+                <p class="card-text">Giao diện thân thiện, trực quan giúp bạn quản lý công việc một cách dễ dàng</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-sync fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Cập Nhật Thời Gian Thực</h5>
+                <p class="card-text">Theo dõi tiến độ công việc và cập nhật trạng thái ngay lập tức</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Bảo Mật</h5>
+                <p class="card-text">Dữ liệu của bạn được bảo vệ an toàn với hệ thống xác thực đáng tin cậy</p>
+            </div>
+        </div>
+    </div>
+</div> 

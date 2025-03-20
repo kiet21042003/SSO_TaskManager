@@ -1,0 +1,77 @@
+{
+  "Version": 1,
+  "Hash": "LHWT8oFjAjtIOfAr0eXhlNbuLTf2PzUadOe5ag8IqJw=",
+  "Source": "TaskManager",
+  "BasePath": "_content/TaskManager",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "TaskManager\\wwwroot",
+      "Source": "TaskManager",
+      "ContentRoot": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\",
+      "BasePath": "_content/TaskManager",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\css\\site.css",
+      "SourceId": "TaskManager",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\",
+      "BasePath": "_content/TaskManager",
+      "RelativePath": "css/site.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\js\\site.js",
+      "SourceId": "TaskManager",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\",
+      "BasePath": "_content/TaskManager",
+      "RelativePath": "js/site.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\js\\tasks.js",
+      "SourceId": "TaskManager",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\",
+      "BasePath": "_content/TaskManager",
+      "RelativePath": "js/tasks.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\tasks.js"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "Hồ Sơ";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                        <h2 class="mt-3">@User.Identity?.Name</h2>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-3">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </h5>
+                                <p class="lead">@User.Identity?.Name</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-3">
+                                    <i class="fas fa-clock me-2"></i>Ngày Tham Gia
+                                </h5>
+                                <p class="lead">@DateTime.Now.ToString("dd/MM/yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a asp-controller="Home" asp-action="Tasks" class="btn btn-primary me-2">
+                            <i class="fas fa-tasks me-2"></i>Xem Công Việc
+                        </a>
+                        <a asp-controller="Home" asp-action="Logout" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

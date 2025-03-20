@@ -1,0 +1,33 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "D:\\Projects\\SSO_Final\\SSO_Demo\\TaskManager\\src\\wwwroot\\js\\tasks.js",
+      "PackagePath": "staticwebassets\\js\\tasks.js"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.TaskManager.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.TaskManager.props",
+      "PackagePath": "build\\TaskManager.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.TaskManager.props",
+      "PackagePath": "buildMultiTargeting\\TaskManager.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.TaskManager.props",
+      "PackagePath": "buildTransitive\\TaskManager.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,238 @@
+@model List<TodoTask>
+@{
+    ViewData["Title"] = "Công Việc";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-tasks me-2"></i>Danh Sách Công Việc</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+            <i class="fas fa-plus me-2"></i>Thêm Công Việc Mới
+        </button>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-secondary text-white">
+                    <i class="fas fa-list me-2"></i>Cần Làm
+                </div>
+                <div class="card-body task-column" data-status="0">
+                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.Todo))
+                    {
+                        <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+                            <h5 class="task-title">@task.Title</h5>
+                            <p class="task-description">@task.Description</p>
+                            <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="moveTask(@task.Id, 1)">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="moveTask(@task.Id, 3)">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-spinner me-2"></i>Đang Thực Hiện
+                </div>
+                <div class="card-body task-column" data-status="1">
+                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.InProgress))
+                    {
+                        <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+                            <h5 class="task-title">@task.Title</h5>
+                            <p class="task-description">@task.Description</p>
+                            <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="moveTask(@task.Id, 2)">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="moveTask(@task.Id, 3)">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-check me-2"></i>Hoàn Thành
+                </div>
+                <div class="card-body task-column" data-status="2">
+                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.Completed))
+                    {
+                        <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+                            <h5 class="task-title">@task.Title</h5>
+                            <p class="task-description">@task.Description</p>
+                            <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-danger" onclick="moveTask(@task.Id, 3)">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-ban me-2"></i>Đã Hủy Bỏ
+                </div>
+                <div class="card-body task-column" data-status="3">
+                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.Cancelled))
+                    {
+                        <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+                            <h5 class="task-title">@task.Title</h5>
+                            <p class="task-description">@task.Description</p>
+                            <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(@task.Id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal tạo công việc mới -->
+<div class="modal fade" id="addTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Thêm Công Việc Mới
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <div class="mb-3">
+                        <label for="taskTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="taskTitle" required maxlength="100">
+                        <div class="invalid-feedback">Vui lòng nhập tiêu đề công việc</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDescription" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="taskDescription" rows="3" maxlength="500"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskStatus" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="taskStatus">
+                            <option value="0">Cần làm</option>
+                            <option value="1">Đang thực hiện</option>
+                            <option value="2">Hoàn thành</option>
+                            <option value="3">Đã hủy bỏ</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Đóng
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .task-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .task-column.drag-over {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .task-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-outline-primary:hover {
+            transform: translateX(2px);
+        }
+
+        .btn-outline-danger:hover {
+            transform: scale(1.05);
+        }
+
+        .task-column {
+            min-height: 100px;
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 1rem;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #eee;
+            padding: 1rem 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #eee;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        }
+    </style>
+} 

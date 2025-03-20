@@ -1,0 +1,19 @@
+@{
+    ViewData["Title"] = "Truy Cập Bị Từ Chối";
+}
+
+<div class="container">
+    <div class="text-center mt-5">
+        <i class="fas fa-exclamation-triangle text-warning fa-5x mb-4"></i>
+        <h1 class="display-4">@ViewData["Title"]</h1>
+        <p class="lead text-muted">Bạn không có quyền truy cập trang này.</p>
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary me-2">
+                <i class="fas fa-home me-2"></i>Về Trang Chủ
+            </a>
+            <a asp-controller="Home" asp-action="Login" class="btn btn-outline-primary">
+                <i class="fas fa-sign-in-alt me-2"></i>Đăng Nhập
+            </a>
+        </div>
+    </div>
+</div> 
