@@ -155,15 +155,66 @@ function formatDate(date) {
     });
 }
 
-// Khởi tạo tooltips và popovers của Bootstrap
-document.addEventListener('DOMContentLoaded', function() {
+// Khởi tạo tooltips và popovers
+document.addEventListener('DOMContentLoaded', function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    popoverTriggerList.map(function(popoverTriggerEl) {
+    popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
     });
-}); 
+});
+
+// Hàm cập nhật ảnh đại diện
+function updateProfile() {
+    const fileInput = document.getElementById('avatar');
+    if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('avatar', fileInput.files[0]);
+
+        fetch('/api/profile/avatar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi cập nhật ảnh đại diện');
+            }
+            return response.json();
+        })
+        .then(data => {
+            Toastify({
+                text: "Cập nhật ảnh đại diện thành công",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: "#198754"
+                }
+            }).showToast();
+
+            // Cập nhật ảnh đại diện trên giao diện
+            document.querySelector('img[alt="avatar"]').src = data.url;
+
+            // Đóng modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            modal.hide();
+        })
+        .catch(error => {
+            Toastify({
+                text: error.message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: "#dc3545"
+                }
+            }).showToast();
+        });
+    }
+} 

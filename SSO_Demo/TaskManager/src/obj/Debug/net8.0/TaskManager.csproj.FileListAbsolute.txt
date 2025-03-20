@@ -119,6 +119,7 @@ D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.cspr
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.MvcApplicationPartsAssemblyInfo.cache
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.RazorAssemblyInfo.cache
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.RazorAssemblyInfo.cs
+D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.sourcelink.json
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\staticwebassets.build.json
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\staticwebassets.development.json
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\staticwebassets\msbuild.TaskManager.Microsoft.AspNetCore.StaticWebAssets.props
@@ -133,3 +134,4 @@ D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\refint\TaskManag
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.pdb
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\TaskManager.genruntimeconfig.cache
 D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\obj\Debug\net8.0\ref\TaskManager.dll
+D:\Projects\SSO_Final\SSO_Demo\TaskManager\src\bin\Debug\net8.0\libman.json

@@ -1,46 +1,354 @@
+@using TaskManager.Models
+@model UserProfileViewModel
 @{
     ViewData["Title"] = "Hồ Sơ";
 }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm">
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/chart.js" rel="stylesheet">
+    <style>
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        .rounded-circle {
+            border: 3px solid #fff;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .task-stats {
+            transition: transform 0.2s;
+        }
+
+        .task-stats:hover {
+            transform: translateY(-5px);
+        }
+
+        .recent-tasks {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s;
+        }
+
+        .task-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="@Model.Picture" alt="avatar"
+                         class="rounded-circle img-fluid" style="width: 150px;">
+                    <h5 class="my-3">@Model.Name</h5>
+                    <p class="text-muted mb-1">@Model.Email</p>
+                    <p class="text-muted mb-4">Tham gia từ @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa Thông Tin
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card mb-4">
                 <div class="card-body">
-                    <div class="text-center mb-4">
-                        <i class="fas fa-user-circle fa-5x text-primary"></i>
-                        <h2 class="mt-3">@User.Identity?.Name</h2>
-                    </div>
-
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-4">
-                                <h5 class="text-muted mb-3">
-                                    <i class="fas fa-envelope me-2"></i>Email
-                                </h5>
-                                <p class="lead">@User.Identity?.Name</p>
+                        <div class="col-sm-3">
+                            <p class="mb-0">Họ và tên</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">@Model.Name</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Email</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">@Model.Email</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Ngày tham gia</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">@Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">ID Người Dùng</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">@Model.UserId</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Thống Kê Công Việc</h5>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-primary text-white task-stats">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">@ViewBag.TodoCount</h3>
+                                    <p class="card-text">Cần Làm</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-4">
-                                <h5 class="text-muted mb-3">
-                                    <i class="fas fa-clock me-2"></i>Ngày Tham Gia
-                                </h5>
-                                <p class="lead">@DateTime.Now.ToString("dd/MM/yyyy")</p>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-info text-white task-stats">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">@ViewBag.InProgressCount</h3>
+                                    <p class="card-text">Đang Làm</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-success text-white task-stats">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">@ViewBag.CompletedCount</h3>
+                                    <p class="card-text">Hoàn Thành</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-danger text-white task-stats">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">@ViewBag.CancelledCount</h3>
+                                    <p class="card-text">Đã Hủy</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <canvas id="taskChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-                    <div class="text-center mt-4">
-                        <a asp-controller="Home" asp-action="Tasks" class="btn btn-primary me-2">
-                            <i class="fas fa-tasks me-2"></i>Xem Công Việc
-                        </a>
-                        <a asp-controller="Home" asp-action="Logout" class="btn btn-outline-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
-                        </a>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4 mb-md-0">
+                        <div class="card-body">
+                            <h5 class="mb-4">
+                                <i class="fas fa-history me-2"></i>Công Việc Gần Đây
+                            </h5>
+                            @if (Model.RecentTasks.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Tiêu đề</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ngày tạo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var task in Model.RecentTasks)
+                                            {
+                                                <tr>
+                                                    <td>@task.Title</td>
+                                                    <td>
+                                                        @{
+                                                            string badgeClass = task.Status switch
+                                                            {
+                                                                TaskManager.Models.TaskStatus.Todo => "bg-secondary",
+                                                                TaskManager.Models.TaskStatus.InProgress => "bg-info",
+                                                                TaskManager.Models.TaskStatus.Completed => "bg-success",
+                                                                TaskManager.Models.TaskStatus.Cancelled => "bg-danger",
+                                                                _ => "bg-secondary"
+                                                            };
+
+                                                            string statusText = task.Status switch
+                                                            {
+                                                                TaskManager.Models.TaskStatus.Todo => "Cần làm",
+                                                                TaskManager.Models.TaskStatus.InProgress => "Đang thực hiện",
+                                                                TaskManager.Models.TaskStatus.Completed => "Hoàn thành",
+                                                                TaskManager.Models.TaskStatus.Cancelled => "Đã hủy bỏ",
+                                                                _ => "Không xác định"
+                                                            };
+                                                        }
+                                                        <span class="badge @badgeClass">@statusText</span>
+                                                    </td>
+                                                    <td>@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted text-center">Chưa có công việc nào được tạo.</p>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<!-- Modal Chỉnh Sửa Thông Tin -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh Sửa Thông Tin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Họ Tên</label>
+                        <input type="text" class="form-control" id="name" value="@Model.Name" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" value="@Model.Email" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label">Ảnh Đại Diện</label>
+                        <input type="file" class="form-control" id="avatar" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile()">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Khởi tạo biểu đồ
+        const ctx = document.getElementById('taskChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cần Làm', 'Đang Làm', 'Hoàn Thành', 'Đã Hủy'],
+                datasets: [{
+                    data: [@ViewBag.TodoCount, @ViewBag.InProgressCount, @ViewBag.CompletedCount, @ViewBag.CancelledCount],
+                    backgroundColor: [
+                        '#0d6efd',
+                        '#0dcaf0',
+                        '#198754',
+                        '#dc3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Hàm cập nhật thông tin cá nhân
+        function updateProfile() {
+            const fileInput = document.getElementById('avatar');
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append('avatar', fileInput.files[0]);
+
+                fetch('/api/profile/avatar', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Lỗi cập nhật ảnh đại diện');
+                    return response.json();
+                })
+                .then(data => {
+                    Toastify({
+                        text: "Cập nhật thông tin thành công",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#198754"
+                        }
+                    }).showToast();
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    Toastify({
+                        text: error.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#dc3545"
+                        }
+                    }).showToast();
+                });
+            }
+
+            $('#editProfileModal').modal('hide');
+        }
+    </script>
+} 

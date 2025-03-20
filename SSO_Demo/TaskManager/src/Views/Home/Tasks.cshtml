@@ -1,3 +1,4 @@
+@using TaskManager.Models
 @model List<TodoTask>
 @{
     ViewData["Title"] = "Công Việc";
@@ -18,12 +19,15 @@
                     <i class="fas fa-list me-2"></i>Cần Làm
                 </div>
                 <div class="card-body task-column" data-status="0">
-                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.Todo))
+                    @foreach (var task in Model.Where(t => t.Status == TaskManager.Models.TaskStatus.Todo))
                     {
                         <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
                             <h5 class="task-title">@task.Title</h5>
                             <p class="task-description">@task.Description</p>
                             <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-info" onclick="editTask(@task.Id, '@task.Title', '@task.Description')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <button class="btn btn-sm btn-outline-primary" onclick="moveTask(@task.Id, 1)">
                                     <i class="fas fa-arrow-right"></i>
                                 </button>
@@ -43,12 +47,15 @@
                     <i class="fas fa-spinner me-2"></i>Đang Thực Hiện
                 </div>
                 <div class="card-body task-column" data-status="1">
-                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.InProgress))
+                    @foreach (var task in Model.Where(t => t.Status == TaskManager.Models.TaskStatus.InProgress))
                     {
                         <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
                             <h5 class="task-title">@task.Title</h5>
                             <p class="task-description">@task.Description</p>
                             <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-info" onclick="editTask(@task.Id, '@task.Title', '@task.Description')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <button class="btn btn-sm btn-outline-primary" onclick="moveTask(@task.Id, 2)">
                                     <i class="fas fa-arrow-right"></i>
                                 </button>
@@ -68,12 +75,15 @@
                     <i class="fas fa-check me-2"></i>Hoàn Thành
                 </div>
                 <div class="card-body task-column" data-status="2">
-                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.Completed))
+                    @foreach (var task in Model.Where(t => t.Status == TaskManager.Models.TaskStatus.Completed))
                     {
                         <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
                             <h5 class="task-title">@task.Title</h5>
                             <p class="task-description">@task.Description</p>
                             <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-info" onclick="editTask(@task.Id, '@task.Title', '@task.Description')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <button class="btn btn-sm btn-outline-danger" onclick="moveTask(@task.Id, 3)">
                                     <i class="fas fa-ban"></i>
                                 </button>
@@ -90,12 +100,15 @@
                     <i class="fas fa-ban me-2"></i>Đã Hủy Bỏ
                 </div>
                 <div class="card-body task-column" data-status="3">
-                    @foreach (var task in Model.Where(t => t.Status == TodoTaskStatus.Cancelled))
+                    @foreach (var task in Model.Where(t => t.Status == TaskManager.Models.TaskStatus.Cancelled))
                     {
                         <div id="task-@task.Id" class="task-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
                             <h5 class="task-title">@task.Title</h5>
                             <p class="task-description">@task.Description</p>
                             <div class="task-actions">
+                                <button class="btn btn-sm btn-outline-info" onclick="editTask(@task.Id, '@task.Title', '@task.Description')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(@task.Id)">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -137,6 +150,42 @@
                             <option value="2">Hoàn thành</option>
                             <option value="3">Đã hủy bỏ</option>
                         </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Đóng
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chỉnh sửa công việc -->
+<div class="modal fade" id="editTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Chỉnh Sửa Công Việc
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId">
+                    <div class="mb-3">
+                        <label for="editTaskTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="editTaskTitle" required maxlength="100">
+                        <div class="invalid-feedback">Vui lòng nhập tiêu đề công việc</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTaskDescription" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="editTaskDescription" rows="3" maxlength="500"></textarea>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

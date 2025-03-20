@@ -90,7 +90,7 @@ namespace TaskManager.Controllers.Api
                     return NotFound();
                 }
 
-                task.Status = (TodoTaskStatus)request.NewStatus;
+                task.Status = (Models.TaskStatus)request.NewStatus;
                 task.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
@@ -133,18 +133,56 @@ namespace TaskManager.Controllers.Api
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+
+        // PUT: api/tasks/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskRequest request)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var task = await _context.Tasks
+                    .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+                if (task == null)
+                {
+                    _logger.LogWarning("Task not found for update: {TaskId}", id);
+                    return NotFound();
+                }
+
+                task.Title = request.Title;
+                task.Description = request.Description;
+                task.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Task updated: {TaskId}", id);
+
+                return Ok(task);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating task");
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
     }
 
     public class CreateTaskRequest
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public TodoTaskStatus Status { get; set; }
+        public Models.TaskStatus Status { get; set; }
     }
 
     public class MoveTaskRequest
     {
         public int TaskId { get; set; }
         public int NewStatus { get; set; }
+    }
+
+    public class UpdateTaskRequest
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
     }
 } 

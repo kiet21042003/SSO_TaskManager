@@ -176,6 +176,65 @@ function showToast(message, type = 'info') {
     }).showToast();
 }
 
+// Hàm để mở modal chỉnh sửa công việc
+function editTask(id, title, description) {
+    document.getElementById('editTaskId').value = id;
+    document.getElementById('editTaskTitle').value = title;
+    document.getElementById('editTaskDescription').value = description;
+    
+    const modal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+    modal.show();
+}
+
+// Hàm để cập nhật công việc
+async function updateTask(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('editTaskId').value;
+    const title = document.getElementById('editTaskTitle').value;
+    const description = document.getElementById('editTaskDescription').value;
+
+    if (!title) {
+        showToast('Vui lòng nhập tiêu đề công việc', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tasks/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: title,
+                description: description || ''
+            })
+        });
+
+        if (response.ok) {
+            // Đóng modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+            modal.hide();
+            // Hiển thị thông báo thành công
+            showToast('Cập nhật công việc thành công', 'success');
+            // Reload trang sau 1 giây
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            const data = await response.json();
+            let errorMessage = 'Có lỗi xảy ra khi cập nhật công việc';
+            if (data.errors) {
+                errorMessage += ': ' + Object.values(data.errors).flat().join(', ');
+            } else if (data.message) {
+                errorMessage += ': ' + data.message;
+            }
+            showToast(errorMessage, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra khi cập nhật công việc: ' + error.message, 'error');
+    }
+}
+
 // Thêm các event listener cho các cột task
 document.addEventListener('DOMContentLoaded', () => {
     const taskColumns = document.querySelectorAll('.task-column');
@@ -202,5 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskForm = document.getElementById('taskForm');
     if (taskForm) {
         taskForm.addEventListener('submit', createTask);
+    }
+
+    // Form chỉnh sửa
+    const editTaskForm = document.getElementById('editTaskForm');
+    if (editTaskForm) {
+        editTaskForm.addEventListener('submit', updateTask);
     }
 }); 

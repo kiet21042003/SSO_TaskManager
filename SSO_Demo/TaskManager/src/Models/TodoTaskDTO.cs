@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace TaskManager.Models
@@ -11,6 +12,12 @@ namespace TaskManager.Models
         [StringLength(500, ErrorMessage = "Mô tả không được vượt quá 500 ký tự")]
         public string? Description { get; set; }
 
-        public TodoTaskStatus Status { get; set; }
+        public TaskStatus Status { get; set; }
+
+        public string UserId { get; set; } = string.Empty;
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
     }
 } 

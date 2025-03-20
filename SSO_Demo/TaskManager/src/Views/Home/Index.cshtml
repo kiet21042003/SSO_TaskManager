@@ -2,54 +2,170 @@
     ViewData["Title"] = "Trang Chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Chào Mừng</h1>
-    <p class="lead">Hệ thống quản lý công việc hiệu quả và dễ sử dụng</p>
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <h1 class="display-4 mb-4">Xin chào, @ViewBag.UserName!</h1>
+                    <p class="lead mb-4">Chào mừng bạn đến với Hệ Thống Quản Lý Công Việc</p>
+                    <a href="@Url.Action("Tasks", "Home")" class="btn btn-primary btn-lg">
+                        <i class="fas fa-tasks me-2"></i>Xem Danh Sách Công Việc
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    @if (!User.Identity?.IsAuthenticated == true)
-    {
-        <div class="mt-4">
-            <a asp-controller="Home" asp-action="Login" class="btn btn-primary btn-lg">
-                <i class="fas fa-sign-in-alt me-2"></i>Đăng Nhập Ngay
-            </a>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3">@ViewBag.TodoCount</div>
+                    <h5 class="card-title text-secondary">Cần Làm</h5>
+                </div>
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="mt-4">
-            <a asp-controller="Home" asp-action="Tasks" class="btn btn-primary btn-lg">
-                <i class="fas fa-tasks me-2"></i>Xem Công Việc
-            </a>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-info mb-3">@ViewBag.InProgressCount</div>
+                    <h5 class="card-title text-secondary">Đang Thực Hiện</h5>
+                </div>
+            </div>
         </div>
-    }
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-3">@ViewBag.CompletedCount</div>
+                    <h5 class="card-title text-secondary">Hoàn Thành</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-danger mb-3">@ViewBag.CancelledCount</div>
+                    <h5 class="card-title text-secondary">Đã Hủy Bỏ</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-history me-2"></i>Công Việc Gần Đây
+                    </h5>
+                    @if (ViewBag.RecentTasks != null && ((List<TodoTask>)ViewBag.RecentTasks).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tiêu đề</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in (List<TodoTask>)ViewBag.RecentTasks)
+                                    {
+                                        <tr>
+                                            <td>@task.Title</td>
+                                            <td>
+                                                @{
+                                                    string badgeClass = task.Status switch
+                                                    {
+                                                        TaskManager.Models.TaskStatus.Todo => "bg-secondary",
+                                                        TaskManager.Models.TaskStatus.InProgress => "bg-info",
+                                                        TaskManager.Models.TaskStatus.Completed => "bg-success",
+                                                        TaskManager.Models.TaskStatus.Cancelled => "bg-danger",
+                                                        _ => "bg-secondary"
+                                                    };
+
+                                                    string statusText = task.Status switch
+                                                    {
+                                                        TaskManager.Models.TaskStatus.Todo => "Cần làm",
+                                                        TaskManager.Models.TaskStatus.InProgress => "Đang thực hiện",
+                                                        TaskManager.Models.TaskStatus.Completed => "Hoàn thành",
+                                                        TaskManager.Models.TaskStatus.Cancelled => "Đã hủy bỏ",
+                                                        _ => "Không xác định"
+                                                    };
+                                                }
+                                                <span class="badge @badgeClass">@statusText</span>
+                                            </td>
+                                            <td>@task.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="text-end">
+                                                <a href="@Url.Action("Tasks", "Home")" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Chưa có công việc nào được tạo.</p>
+                            <a href="@Url.Action("Tasks", "Home")" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Tạo Công Việc Mới
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Dễ Sử Dụng</h5>
-                <p class="card-text">Giao diện thân thiện, trực quan giúp bạn quản lý công việc một cách dễ dàng</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-sync fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Cập Nhật Thời Gian Thực</h5>
-                <p class="card-text">Theo dõi tiến độ công việc và cập nhật trạng thái ngay lập tức</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-shield-alt fa-3x text-info mb-3"></i>
-                <h5 class="card-title">Bảo Mật</h5>
-                <p class="card-text">Dữ liệu của bạn được bảo vệ an toàn với hệ thống xác thực đáng tin cậy</p>
-            </div>
-        </div>
-    </div>
-</div> 
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary {
+            border-width: 2px;
+        }
+
+        .btn-outline-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+    </style>
+} 
