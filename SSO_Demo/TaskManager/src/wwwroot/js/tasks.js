@@ -52,66 +52,14 @@ async function drop(event) {
     }
 }
 
-// Hàm để tạo công việc mới
-async function createTask(e) {
-    e.preventDefault();
-    
-    const title = document.getElementById('taskTitle').value;
-    const description = document.getElementById('taskDescription').value;
-    const status = parseInt(document.getElementById('taskStatus').value);
-
-    if (!title) {
-        showToast('Vui lòng nhập tiêu đề công việc', 'error');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                title: title,
-                description: description || '',
-                status: status
-            })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            // Đóng modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
-            modal.hide();
-            // Reset form
-            document.getElementById('taskForm').reset();
-            // Hiển thị thông báo thành công
-            showToast('Tạo công việc thành công', 'success');
-            // Reload trang sau 1 giây
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            let errorMessage = 'Có lỗi xảy ra khi tạo công việc';
-            if (data.errors) {
-                errorMessage += ': ' + Object.values(data.errors).flat().join(', ');
-            } else if (data.message) {
-                errorMessage += ': ' + data.message;
-            }
-            showToast(errorMessage, 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showToast('Có lỗi xảy ra khi tạo công việc: ' + error.message, 'error');
-    }
-}
-
 // Hàm để cập nhật trạng thái công việc
 async function moveTask(id, newStatus) {
     try {
         const response = await fetch('/api/tasks/move', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
             },
             body: JSON.stringify({
                 taskId: id,
@@ -132,51 +80,21 @@ async function moveTask(id, newStatus) {
     }
 }
 
-// Hàm để xóa công việc
-async function deleteTask(id) {
-    if (!confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/tasks/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.message || 'Có lỗi xảy ra khi xóa công việc');
-        }
-
-        showToast('Xóa công việc thành công', 'success');
-        setTimeout(() => window.location.reload(), 1000);
-    } catch (error) {
-        console.error('Error:', error);
-        showToast(error.message, 'error');
-    }
-}
-
 // Hàm hiển thị thông báo
-function showToast(message, type = 'info') {
-    const backgroundColor = type === 'error' ? '#dc3545' : 
-                          type === 'success' ? '#198754' : 
-                          '#0dcaf0';
-    
+function showToast(message, type = 'success') {
     Toastify({
         text: message,
         duration: 3000,
+        close: true,
         gravity: "top",
-        position: 'right',
+        position: "right",
         style: {
-            background: backgroundColor
+            background: type === 'success' ? "#198754" : "#dc3545"
         }
     }).showToast();
 }
 
-// Hàm để mở modal chỉnh sửa công việc
+// Hàm để chỉnh sửa task
 function editTask(id, title, description) {
     document.getElementById('editTaskId').value = id;
     document.getElementById('editTaskTitle').value = title;
@@ -186,52 +104,28 @@ function editTask(id, title, description) {
     modal.show();
 }
 
-// Hàm để cập nhật công việc
-async function updateTask(e) {
-    e.preventDefault();
-    
-    const id = document.getElementById('editTaskId').value;
-    const title = document.getElementById('editTaskTitle').value;
-    const description = document.getElementById('editTaskDescription').value;
-
-    if (!title) {
-        showToast('Vui lòng nhập tiêu đề công việc', 'error');
-        return;
-    }
+// Hàm để xóa task
+async function deleteTask(id) {
+    if (!confirm('Bạn có chắc chắn muốn xóa công việc này?')) return;
 
     try {
         const response = await fetch(`/api/tasks/${id}`, {
-            method: 'PUT',
+            method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                title: title,
-                description: description || ''
-            })
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            }
         });
 
-        if (response.ok) {
-            // Đóng modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
-            modal.hide();
-            // Hiển thị thông báo thành công
-            showToast('Cập nhật công việc thành công', 'success');
-            // Reload trang sau 1 giây
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
+        if (!response.ok) {
             const data = await response.json();
-            let errorMessage = 'Có lỗi xảy ra khi cập nhật công việc';
-            if (data.errors) {
-                errorMessage += ': ' + Object.values(data.errors).flat().join(', ');
-            } else if (data.message) {
-                errorMessage += ': ' + data.message;
-            }
-            showToast(errorMessage, 'error');
+            throw new Error(data.message || 'Có lỗi xảy ra khi xóa công việc');
         }
+
+        showToast('Xóa công việc thành công');
+        setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
         console.error('Error:', error);
-        showToast('Có lỗi xảy ra khi cập nhật công việc: ' + error.message, 'error');
+        showToast(error.message, 'error');
     }
 }
 
@@ -268,4 +162,87 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editTaskForm) {
         editTaskForm.addEventListener('submit', updateTask);
     }
-}); 
+});
+
+// Hàm để tạo task mới
+async function createTask(event) {
+    event.preventDefault();
+    
+    const title = document.getElementById('taskTitle').value.trim();
+    const description = document.getElementById('taskDescription').value.trim();
+    const status = parseInt(document.getElementById('taskStatus').value);
+
+    if (!title) {
+        document.getElementById('taskTitle').classList.add('is-invalid');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({
+                title,
+                description,
+                status
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Có lỗi xảy ra khi tạo công việc');
+        }
+
+        showToast('Tạo công việc thành công');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+        modal.hide();
+        setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+        console.error('Error:', error);
+        showToast(error.message, 'error');
+    }
+}
+
+// Hàm để cập nhật task
+async function updateTask(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('editTaskId').value;
+    const title = document.getElementById('editTaskTitle').value.trim();
+    const description = document.getElementById('editTaskDescription').value.trim();
+
+    if (!title) {
+        document.getElementById('editTaskTitle').classList.add('is-invalid');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tasks/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({
+                title,
+                description
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Có lỗi xảy ra khi cập nhật công việc');
+        }
+
+        showToast('Cập nhật công việc thành công');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+        modal.hide();
+        setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+        console.error('Error:', error);
+        showToast(error.message, 'error');
+    }
+} 

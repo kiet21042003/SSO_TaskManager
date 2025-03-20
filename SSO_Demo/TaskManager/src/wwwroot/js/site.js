@@ -129,18 +129,190 @@ function updateTaskInUI(task) {
     addTaskToUI(task);
 }
 
+// Hàm để mở modal chỉnh sửa công việc
+function editTask(id, title, description) {
+    document.getElementById('editTaskId').value = id;
+    document.getElementById('editTaskTitle').value = title;
+    document.getElementById('editTaskDescription').value = description;
+    
+    const modal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+    modal.show();
+}
+
+// Hàm để cập nhật thông tin công việc
+async function updateTask(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('editTaskId').value;
+    const title = document.getElementById('editTaskTitle').value;
+    const description = document.getElementById('editTaskDescription').value;
+
+    if (!title) {
+        alert('Vui lòng nhập tiêu đề công việc');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tasks/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: title,
+                description: description || ''
+            })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Có lỗi xảy ra khi cập nhật công việc');
+        }
+
+        // Đóng modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+        modal.hide();
+        
+        // Hiển thị thông báo thành công
+        Toastify({
+            text: "Cập nhật công việc thành công",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: "#198754"
+            }
+        }).showToast();
+
+        // Reload trang
+        window.location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        Toastify({
+            text: error.message,
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: "#dc3545"
+            }
+        }).showToast();
+    }
+}
+
 // Khởi tạo các event listener khi trang được load
 document.addEventListener('DOMContentLoaded', function() {
-    // Thêm sự kiện submit cho form
+    // Thêm sự kiện submit cho form tạo mới
     const taskForm = document.getElementById('taskForm');
     if (taskForm) {
         taskForm.addEventListener('submit', createTask);
     }
 
-    // Thêm sự kiện click cho nút Lưu trong modal
-    const saveButton = document.querySelector('#addTaskModal .btn-primary');
-    if (saveButton) {
-        saveButton.addEventListener('click', createTask);
+    // Thêm sự kiện submit cho form chỉnh sửa
+    const editTaskForm = document.getElementById('editTaskForm');
+    if (editTaskForm) {
+        editTaskForm.addEventListener('submit', updateTask);
+    }
+
+    // Thêm sự kiện submit cho form cập nhật thông tin cá nhân
+    const editProfileForm = document.getElementById('editProfileForm');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (name) formData.append('name', name);
+            if (email) formData.append('email', email);
+
+            const avatarInput = document.getElementById('avatar');
+            if (avatarInput.files.length > 0) {
+                formData.append('avatar', avatarInput.files[0]);
+            }
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const response = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'RequestVerificationToken': token
+                    },
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Có lỗi xảy ra khi cập nhật thông tin');
+                }
+
+                // Hiển thị thông báo thành công
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#198754"
+                    }
+                }).showToast();
+
+                // Cập nhật UI
+                if (data.success && data.data) {
+                    // Cập nhật tên và email trong phần profile
+                    document.querySelector('.profile-info h5.my-3').textContent = data.data.name;
+                    document.querySelector('.profile-info p.text-muted.mb-1').textContent = data.data.email;
+                    
+                    // Cập nhật ảnh đại diện nếu có
+                    if (data.data.picture) {
+                        const avatarImages = document.querySelectorAll('img.rounded-circle');
+                        avatarImages.forEach(img => {
+                            img.src = data.data.picture;
+                        });
+                    }
+
+                    // Cập nhật tên trong thanh navigation
+                    const navUsername = document.querySelector('.nav-username');
+                    if (navUsername) {
+                        navUsername.textContent = data.data.name;
+                    }
+
+                    // Cập nhật tên ở trang chủ nếu đang ở trang chủ
+                    const welcomeMessage = document.querySelector('.display-4.mb-4');
+                    if (welcomeMessage && welcomeMessage.textContent.startsWith('Xin chào')) {
+                        welcomeMessage.textContent = `Xin chào, ${data.data.name}!`;
+                    }
+
+                    // Cập nhật các trường input trong modal
+                    document.getElementById('name').value = data.data.name;
+                    document.getElementById('email').value = data.data.email;
+                }
+
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                modal.hide();
+            } catch (error) {
+                console.error('Error:', error);
+                Toastify({
+                    text: error.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#dc3545"
+                    }
+                }).showToast();
+            }
+        });
     }
 });
 

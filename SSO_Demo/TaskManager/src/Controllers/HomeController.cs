@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using TaskManager.Data;
 using TaskManager.Models;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace TaskManager.Controllers
 {
@@ -20,17 +22,25 @@ namespace TaskManager.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(
+            ILogger<HomeController> logger, 
+            ApplicationDbContext context,
+            IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var name = User.FindFirst(ClaimTypes.Name)?.Value;
+            
+            // Lấy thông tin user từ database
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == NormalizeUserId(userId));
+            var name = user?.Name ?? User.FindFirst(ClaimTypes.Name)?.Value;
 
             var taskCounts = await _context.Tasks
                 .Where(t => t.UserId == userId)
@@ -72,9 +82,12 @@ namespace TaskManager.Controllers
         public async Task<IActionResult> Profile()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var name = User.FindFirst(ClaimTypes.Name)?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var picture = User.FindFirst("picture")?.Value;
+            
+            // Lấy thông tin user từ database
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == NormalizeUserId(userId));
+            var name = user?.Name ?? User.FindFirst(ClaimTypes.Name)?.Value;
+            var email = user?.Email ?? User.FindFirst(ClaimTypes.Email)?.Value;
+            var picture = user?.Picture ?? User.FindFirst("picture")?.Value;
 
             var recentTasks = await _context.Tasks
                 .Where(t => t.UserId == userId)
@@ -99,7 +112,7 @@ namespace TaskManager.Controllers
                 Name = name ?? string.Empty,
                 Email = email ?? string.Empty,
                 Picture = picture ?? "https://via.placeholder.com/150",
-                CreatedAt = DateTime.Now, // Trong thực tế, bạn nên lấy ngày tạo tài khoản từ cơ sở dữ liệu
+                CreatedAt = user?.CreatedAt ?? DateTime.Now,
                 RecentTasks = recentTasks
             };
 
@@ -111,11 +124,27 @@ namespace TaskManager.Controllers
             return Challenge(new AuthenticationProperties { RedirectUri = "/" });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync("Cookies");
-            await HttpContext.SignOutAsync("OpenIdConnect");
-            return RedirectToAction(nameof(Index));
+            _logger.LogInformation("Người dùng đăng xuất");
+
+            // Đăng xuất khỏi cookie authentication trước
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Tạo URL return sau khi đăng xuất
+            var returnUrl = Url.Action("Index", "Home", values: null, protocol: Request.Scheme);
+
+            // Đăng xuất khỏi Auth0
+            return SignOut(
+                new AuthenticationProperties 
+                { 
+                    RedirectUri = $"https://{_configuration["Auth0:Domain"]}/v2/logout?client_id={_configuration["Auth0:ClientId"]}&returnTo={returnUrl}"
+                },
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                OpenIdConnectDefaults.AuthenticationScheme
+            );
         }
 
         public IActionResult AccessDenied()
@@ -132,6 +161,23 @@ namespace TaskManager.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private string NormalizeUserId(string? userId)
+        {
+            if (string.IsNullOrEmpty(userId)) return string.Empty;
+            return userId.Contains("|") ? userId.Split('|')[1] : userId;
+        }
+
+        private async Task<User?> GetCurrentUserAsync()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return null;
+
+            var normalizedUserId = NormalizeUserId(userId);
+            if (string.IsNullOrEmpty(normalizedUserId)) return null;
+
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == normalizedUserId);
         }
     }
 

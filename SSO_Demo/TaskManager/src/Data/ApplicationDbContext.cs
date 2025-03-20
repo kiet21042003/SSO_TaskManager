@@ -11,6 +11,7 @@ namespace TaskManager.Data
         }
 
         public DbSet<TodoTask> Tasks { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +19,10 @@ namespace TaskManager.Data
 
             modelBuilder.Entity<TodoTask>()
                 .HasIndex(t => t.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 } 
